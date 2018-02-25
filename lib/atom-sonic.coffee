@@ -1,6 +1,7 @@
-{CompositeDisposable} = require 'atom'
-osc                   = require 'node-osc'
-provider              = require './atom-sonic-autocomplete'
+{CompositeDisposable, Disposable} = require 'atom'
+osc                               = require 'node-osc'
+provider                          = require './atom-sonic-autocomplete'
+atomSonicView                     = require './atom-sonic-view'
 
 module.exports = AtomSonic =
   config:
@@ -13,11 +14,35 @@ module.exports = AtomSonic =
 
   activate: (state) ->
     @subscriptions = new CompositeDisposable
+
+    # Define commands
     @subscriptions.add(atom.commands.add 'atom-workspace',
       'atom-sonic:play-file':         => @play('getText'),
       'atom-sonic:save-and-play-file':=> @saveAndPlay(),
       'atom-sonic:play-selection':    => @play('getSelectedText'),
-      'atom-sonic:stop':              => @stop())
+      'atom-sonic:stop':              => @stop(),
+      'atom-sonic:togglePane':        => @toggle())
+
+    # Stuff for info pane
+    @subscriptions.add(
+      # Add an opener for our view.
+      atom.workspace.addOpener(uri =>
+        if uri === 'atom://active-editor-info'
+          return new ActiveEditorInfoView()
+      ),
+
+      # Destroy any ActiveEditorInfoViews when the package is deactivated.
+      new Disposable(() =>
+        atom.workspace.getPaneItems().forEach(item =>
+          if item instanceof ActiveEditorInfoView
+            item.destroy()
+        )
+      )
+    )
+
+  togglePane: ->
+    console.log('Toggle it!')
+    atom.workspace.toggle('atom://')
 
   deactivate: ->
     @subscriptions.dispose()
