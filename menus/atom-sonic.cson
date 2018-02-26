@@ -10,6 +10,10 @@
           'command': 'atom-sonic:play-file'
         },
         {
+          'label': 'Save and Play File'
+          'command': 'atom-sonic:save-and-play-file'
+        },
+        {
           'label': 'Play Selection'
           'command': 'atom-sonic:play-selection'
         },
